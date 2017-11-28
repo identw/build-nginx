@@ -1,6 +1,8 @@
 # About
 For build nginx with custom openssl libs for Ubuntu
 
+Default: with openssl 1.0.1f for ubuntu 16.04
+
 # Build
 
 https://wiki.debian.org/BuildingTutorial - how to build packages with Debian/Ubuntu
