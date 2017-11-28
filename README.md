@@ -1,5 +1,5 @@
 # About
-For build nginx with custom openssl libs for Ubuntu
+For build nginx with custom openssl libs for Ubuntu or any another changes for nginx source code.
 
 Default: with openssl 1.0.1f for ubuntu 16.04
 
