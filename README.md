@@ -26,3 +26,5 @@ docker build --build-arg nginx_version=1.14.2 --build-arg openssl=openssl-1.0.1u
 docker run -t -i --rm build-nginx /bin/bash
 debuild -b -uc -us
 ```
+
+deb packages will be create in the `/root/` dir.
