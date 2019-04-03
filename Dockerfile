@@ -23,7 +23,7 @@ RUN apt-get update && \
 RUN cd /etc/apt/sources.list.d/ && \
     echo "deb http://nginx.org/packages/ubuntu/ xenial nginx" >> nginx.list && \
     echo "deb-src http://nginx.org/packages/ubuntu/ xenial nginx" >> nginx.list && \
-    curl https://nginx.ru/keys/nginx_signing.key | apt-key add - && \
+    curl -fsSL https://nginx.org/keys/nginx_signing.key | apt-key add - && \
     apt-get update
 
 RUN apt-get build-dep nginx -y
