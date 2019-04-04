@@ -1,7 +1,7 @@
 # About
 For build nginx with custom openssl libs for Ubuntu or any another changes for nginx source code.
 
-Default: with openssl 1.0.1f for ubuntu 16.04
+Default: with openssl 1.0.1u, nginx 1.14.2 for ubuntu 16.04
 
 # Build
 
@@ -22,7 +22,14 @@ debuild -b -uc -us
 
 For change openssl version use build-args. For Example:
 ```bash
-docker build --build-arg nginx_version=1.14.2 --build-arg openssl=openssl-1.0.1u -t build-nginx ./
+docker build --build-arg nginx_version=1.14.1 --build-arg openssl=openssl-1.0.1t -t build-nginx ./
+docker run -t -i --rm build-nginx /bin/bash
+debuild -b -uc -us
+```
+
+For change ubuntu version
+```bash
+docker build --build-arg ubuntu_codename=bionic --build-arg ubuntu_version=18.04 -t build-nginx ./
 docker run -t -i --rm build-nginx /bin/bash
 debuild -b -uc -us
 ```

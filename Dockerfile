@@ -1,9 +1,11 @@
-FROM ubuntu:16.04
+ARG ubuntu_version='16.04'
+FROM ubuntu:${ubuntu_version}
 ENV DEBIAN_FRONTEND noninteractive
-ARG openssl="openssl-1.0.1f"
+ARG ubuntu_codename='xenial'
+ARG openssl="openssl-1.0.1u"
 ARG openssl_url="https://www.openssl.org/source/old/1.0.1/${openssl}.tar.gz"
-ARG nginx_version="1.12.1"
-ARG nginx_deb_version="1~xenial"
+ARG nginx_version="1.14.2"
+ARG nginx_deb_version="1~${ubuntu_codename}"
 
 RUN apt-get update && \
     apt-get install -y \
@@ -21,8 +23,8 @@ RUN apt-get update && \
         wget
 
 RUN cd /etc/apt/sources.list.d/ && \
-    echo "deb http://nginx.org/packages/ubuntu/ xenial nginx" >> nginx.list && \
-    echo "deb-src http://nginx.org/packages/ubuntu/ xenial nginx" >> nginx.list && \
+    echo "deb http://nginx.org/packages/ubuntu/ ${ubuntu_codename} nginx" >> nginx.list && \
+    echo "deb-src http://nginx.org/packages/ubuntu/ ${ubuntu_codename} nginx" >> nginx.list && \
     curl -fsSL https://nginx.org/keys/nginx_signing.key | apt-key add - && \
     apt-get update
 
