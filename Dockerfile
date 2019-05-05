@@ -31,6 +31,8 @@ ARG vts_version='v0.1.18'
 RUN mkdir /root/modules && \
     cd /root/modules && \
     git clone https://github.com/vozlt/nginx-module-vts.git && \
+    mv nginx-module-vts nginx-module-vts-${vts_version} && \
+    cd nginx-module-vts-${vts_version}
     git checkout ${vts_version}
 
 ARG openssl="openssl-1.0.1u"
@@ -41,7 +43,6 @@ RUN cd /root && \
     wget ${openssl_url} && \
     gzip -d ${openssl}.tar.gz -c | tar -x && \
     apt-get source nginx=${nginx_version}-${nginx_deb_version} && \
-    sed -i "s@./configure --prefix@./configure --with-openssl=/root/${openssl} --with-openssl-opt='no-ssl2 no-ssl3 -fPIC' --prefix@g;s/--with-stream_ssl_preread_module/--with-stream_ssl_preread_module --add-module=/root/modules/nginx-module-vts/" ./nginx-${nginx_version}/debian/rules
-
+    sed -i "s@./configure --prefix@./configure --with-openssl=/root/${openssl} --with-openssl-opt='no-ssl2 no-ssl3 -fPIC' --prefix@g;s@--with-stream_ssl_preread_module@--with-stream_ssl_preread_module --add-module=/root/modules/nginx-module-vts-${vts_version}@" ./nginx-${nginx_version}/debian/rules
 
 WORKDIR /root/nginx-${nginx_version}
