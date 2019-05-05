@@ -32,7 +32,7 @@ RUN mkdir /root/modules && \
     cd /root/modules && \
     git clone https://github.com/vozlt/nginx-module-vts.git && \
     mv nginx-module-vts nginx-module-vts-${vts_version} && \
-    cd nginx-module-vts-${vts_version}
+    cd nginx-module-vts-${vts_version} && \
     git checkout ${vts_version}
 
 ARG openssl="openssl-1.0.1u"
