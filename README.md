@@ -1,7 +1,7 @@
 # About
-For build nginx with custom openssl libs for Ubuntu or any another changes for nginx source code.
+For build nginx  for Ubuntu  with another openssl libs and additional module https://github.com/vozlt/nginx-module-vts.
 
-Default: with openssl 1.0.1u, nginx 1.14.2 for ubuntu 16.04
+Default: with vts 0.1.18, openssl 1.0.1u, nginx 1.14.2 for ubuntu 16.04
 
 # Build
 
