@@ -1,7 +1,7 @@
-ARG ubuntu_version='16.04'
+ARG ubuntu_version='20.04'
 FROM ubuntu:${ubuntu_version}
 ENV DEBIAN_FRONTEND noninteractive
-ARG ubuntu_codename='xenial'
+ARG ubuntu_codename='focal'
 
 RUN apt-get update && \
     apt-get install -y \
@@ -35,14 +35,21 @@ RUN mkdir /root/modules && \
     cd nginx-module-vts-${vts_version} && \
     git checkout ${vts_version}
 
-ARG openssl="openssl-1.0.1u"
-ARG openssl_url="https://www.openssl.org/source/old/1.0.1/${openssl}.tar.gz"
-ARG nginx_version="1.14.2"
-ARG nginx_deb_version="1~${ubuntu_codename}"
-RUN cd /root && \
-    wget ${openssl_url} && \
-    gzip -d ${openssl}.tar.gz -c | tar -x && \
-    apt-get source nginx=${nginx_version}-${nginx_deb_version} && \
-    sed -i "s@./configure --prefix@./configure --with-openssl=/root/${openssl} --with-openssl-opt='no-ssl2 no-ssl3 -fPIC' --prefix@g;s@--with-stream_ssl_preread_module@--with-stream_ssl_preread_module --add-module=/root/modules/nginx-module-vts-${vts_version}@" ./nginx-${nginx_version}/debian/rules
+ARG custom_ssl=false
+ARG openssl_version="1.1.1f"
+ARG openssl="openssl-${openssl_version}"
+ARG openssl_url="https://www.openssl.org/source/old/${openssl_version}/${openssl}.tar.gz"
+ARG nginx_version="1.18.0"
+ARG nginx_deb_version="${nginx_version}-2~${ubuntu_codename}"
+WORKDIR /root
+RUN apt-get source nginx=${nginx_deb_version} && \
+    sed -i "s@--with-stream_ssl_preread_module@--with-stream_ssl_preread_module --add-module=/root/modules/nginx-module-vts-${vts_version}@" ./nginx-${nginx_version}/debian/rules
+
+RUN if [ ${custom_ssl} = 'true' ]; then \
+        cd /root && \
+        wget ${openssl_url} && \
+        gzip -d ${openssl}.tar.gz -c | tar -x && \
+        sed -i "s@./configure --prefix@./configure --with-openssl=/root/${openssl} --with-openssl-opt='no-ssl2 no-ssl3 -fPIC' --prefix@g" ./nginx-${nginx_version}/debian/rules; \
+    fi;
 
 WORKDIR /root/nginx-${nginx_version}

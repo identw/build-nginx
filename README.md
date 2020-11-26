@@ -1,7 +1,7 @@
 # About
 For build nginx  for Ubuntu  with another openssl libs and additional module https://github.com/vozlt/nginx-module-vts.
 
-Default: with vts 0.1.18, openssl 1.0.1u, nginx 1.14.2 for ubuntu 16.04
+Default: with vts 0.1.18, nginx 1.18.0 (http://nginx.org/packages/ubuntu/dists/), ubuntu: 20.04,  openssl depenfind on the distribution.
 
 # Build
 
@@ -15,14 +15,14 @@ debuild -b -uc -us
 
 For change nginx version use build-args. For Example:
 ```bash
-docker build --build-arg nginx_version=1.14.2 -t build-nginx ./
+docker build --build-arg nginx_version=1.18.0 -t build-nginx ./
 docker run -t -i --rm build-nginx /bin/bash
 debuild -b -uc -us
 ```
 
 For change openssl version use build-args. For Example:
 ```bash
-docker build --build-arg nginx_version=1.14.1 --build-arg openssl=openssl-1.0.1t -t build-nginx ./
+docker build --build-arg custom_ssl=true --build-arg openssl=openssl-1.0.1t -t build-nginx ./
 docker run -t -i --rm build-nginx /bin/bash
 debuild -b -uc -us
 ```
