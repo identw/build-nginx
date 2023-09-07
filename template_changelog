@@ -1,0 +1,6 @@
+nginx (${nginx_version}) ${ubuntu_codename}; urgency=low
+
+  * ${nginx_version}
+
+ -- ${AUTHOR_NAME} ${AUTHOR_EMAIL} ${date_time}
+

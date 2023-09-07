@@ -1,0 +1,134 @@
+name: build
+concurrency:
+  group: build-${{ github.ref_name }}
+on:
+  push:
+    branches:
+      - main
+    paths:
+    - .github/**/*
+    - Dockerfile
+    - template_changelog
+
+permissions:
+  contents: write
+
+env:
+  AUTHOR_EMAIL: admin+github-actions@tapclap.com
+  AUTHOR_NAME: 'Github Actions'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      xenial_package: ${{ steps.package.outputs.xenial_package }}
+      bionic_package: ${{ steps.package.outputs.bionic_package }}
+      focal_package: ${{ steps.package.outputs.focal_package }}
+      jammy_package: ${{ steps.package.outputs.jammy_package }}
+    strategy:
+      matrix:
+        dist: [xenial, bionic, focal, jammy]
+        include:
+        - dist: xenial
+          dist_version: '16.04'
+        - dist: bionic
+          dist_version: '18.04'
+        - dist: focal
+          dist_version: '20.04'
+        - dist: jammy
+          dist_version: '22.04'
+    steps:
+      - uses: actions/checkout@main
+      - name: build ${{ matrix.dist }}
+        id: package
+        run: |
+          
+          docker build \
+            --build-arg ubuntu_version=${{ matrix.dist_version }} \
+            --build-arg ubuntu_codename=${{ matrix.dist }} \
+            -t build-nginx-${{ matrix.dist }} ./
+          
+          name=build-nginx-${{ matrix.dist }}-${RANDOM}
+          echo "name=${name}" >> $GITHUB_ENV
+
+          docker run --name ${name} --entrypoint /bin/sleep -d build-nginx-${{ matrix.dist }} 100
+          package=`docker exec ${name} ls /root/package/`
+          docker cp ${name}:/root/package/${package} ./
+          docker cp ${name}:/root/changelog ./changelog
+
+          echo "${{ matrix.dist }}_package=${package}" >> $GITHUB_OUTPUT
+          echo "package=${package}" >> $GITHUB_OUTPUT
+
+          docker rm -f ${name}
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.dist }}
+          path: ${{ steps.package.outputs.package }}
+          retention-days: 2
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.dist }}-changelog
+          path: ./changelog
+          retention-days: 2
+
+      - name: clean
+        if: ${{ always() }}
+        run: |
+          docker rm -f ${name} || true
+  
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@main
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: xenial
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: bionic
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: focal
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: jammy
+
+      - name: version
+        id: version
+        run: |
+          version_count=`cat ./version_count`
+          echo "VERSION=v0.0.${version_count}" >> $GITHUB_OUTPUT
+          echo "VERSION=${version_count}" >> $GITHUB_ENV
+
+          {
+            echo 'PACKAGES<<EOF'
+            ls -1 ./*.deb
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      # nosemgrep
+      - name: ${{ steps.version.outputs.VERSION }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          files: |
+            ${{ steps.version.outputs.PACKAGES }}
+
+      - name: increase version
+        run: |
+          VERSION=$((VERSION+1))
+          echo ${VERSION} > ./version_count
+          git config --global user.email "${AUTHOR_EMAIL}"
+          git config --global user.name "${AUTHOR_NAME}"
+          git add ./version_count
+          git commit -m "increment version"
+          git push origin ${{ github.ref }}:${{ github.ref }}
