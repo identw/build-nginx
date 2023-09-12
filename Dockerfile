@@ -45,7 +45,7 @@ RUN  \
     nginx_dir=`ls -d ./nginx-*` && \
     echo nginx_dir=${nginx_dir} && \
     sed -i "s@--with-stream_ssl_preread_module@--with-stream_ssl_preread_module --add-module=/root/modules/nginx-module-vts-${vts_version}@" ./${nginx_dir}/debian/rules && \
-    export nginx_version="${nginx_deb_version}~vts${vts_version}~${version_count}" && \
+    export nginx_version="${nginx_deb_version}~vts-${vts_version}~${version_count}" && \
     export date_time="`date -R`" && \
     cat ./template_changelog | envsubst > 1 && \
     cp ./${nginx_dir}/debian/changelog ./changelog1 && \
